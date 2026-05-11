@@ -1,0 +1,6 @@
+{
+  "/book/page": "app/book/page.js",
+  "/ticket/[id]/page": "app/ticket/[id]/page.js",
+  "/page": "app/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js"
+}

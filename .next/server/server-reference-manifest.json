@@ -1,0 +1,46 @@
+{
+  "node": {
+    "158ac1e1ebef887b672821fa921e2a8be93f8196": {
+      "workers": {
+        "app/book/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!",
+        "app/admin/dashboard/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/book/page": "action-browser",
+        "app/admin/dashboard/page": "action-browser"
+      }
+    },
+    "1aefc04c8d7b09d8fc69bc6787c115030373ef29": {
+      "workers": {
+        "app/book/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!",
+        "app/admin/dashboard/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/book/page": "action-browser",
+        "app/admin/dashboard/page": "action-browser"
+      }
+    },
+    "2ab21bc919d306b2649527c308cfd7fe3f906a7b": {
+      "workers": {
+        "app/book/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!",
+        "app/admin/dashboard/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/book/page": "action-browser",
+        "app/admin/dashboard/page": "action-browser"
+      }
+    },
+    "e5bbcea49fbdd4788b895b769ad424e14f9e4494": {
+      "workers": {
+        "app/book/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!",
+        "app/admin/dashboard/page": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22D%3A%5C%5CMy%20Github%20Projects%5C%5CRaduno%20online%20ticket%20system%5C%5Csrc%5C%5Clib%5C%5Cactions.ts%22%2C%5B%22adminLogin%22%2C%22createBooking%22%2C%22updateBookingStatus%22%2C%22adminLogout%22%5D%5D%5D&__client_imported__=true!"
+      },
+      "layer": {
+        "app/book/page": "action-browser",
+        "app/admin/dashboard/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "FiIJ+5ErRejHM6XifbtcnizXZD+gTD19apoQta+wHZY="
+}
