@@ -63,6 +63,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   adminLogin: function() { return /* binding */ adminLogin; },
 /* harmony export */   adminLogout: function() { return /* binding */ adminLogout; },
 /* harmony export */   createBooking: function() { return /* binding */ createBooking; },
+/* harmony export */   markAttendance: function() { return /* binding */ markAttendance; },
 /* harmony export */   updateBookingStatus: function() { return /* binding */ updateBookingStatus; }
 /* harmony export */ });
 /* harmony import */ var next_dist_client_app_call_server__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! next/dist/client/app-call-server */ "(app-pages-browser)/./node_modules/next/dist/client/app-call-server.js");
@@ -75,11 +76,12 @@ function __build_action__(action, args) {
   return (0,next_dist_client_app_call_server__WEBPACK_IMPORTED_MODULE_0__.callServer)(action.$$id, args)
 }
 
-/* __next_internal_action_entry_do_not_use__ {"158ac1e1ebef887b672821fa921e2a8be93f8196":"adminLogin","1aefc04c8d7b09d8fc69bc6787c115030373ef29":"createBooking","2ab21bc919d306b2649527c308cfd7fe3f906a7b":"updateBookingStatus","e5bbcea49fbdd4788b895b769ad424e14f9e4494":"adminLogout"} */ var adminLogout = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("e5bbcea49fbdd4788b895b769ad424e14f9e4494");
+/* __next_internal_action_entry_do_not_use__ {"158ac1e1ebef887b672821fa921e2a8be93f8196":"adminLogin","1aefc04c8d7b09d8fc69bc6787c115030373ef29":"createBooking","2ab21bc919d306b2649527c308cfd7fe3f906a7b":"updateBookingStatus","77b438225505e2ad259d80d8ba4e2adf5b427443":"markAttendance","e5bbcea49fbdd4788b895b769ad424e14f9e4494":"adminLogout"} */ var markAttendance = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("77b438225505e2ad259d80d8ba4e2adf5b427443");
 
 var createBooking = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("1aefc04c8d7b09d8fc69bc6787c115030373ef29");
 var updateBookingStatus = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("2ab21bc919d306b2649527c308cfd7fe3f906a7b");
 var adminLogin = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("158ac1e1ebef887b672821fa921e2a8be93f8196");
+var adminLogout = (0,private_next_rsc_action_client_wrapper__WEBPACK_IMPORTED_MODULE_1__.createServerReference)("e5bbcea49fbdd4788b895b769ad424e14f9e4494");
 
 
 

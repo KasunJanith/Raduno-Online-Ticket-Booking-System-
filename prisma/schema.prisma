@@ -11,9 +11,11 @@ model Booking {
   id             String   @id @default(cuid())
   name           String
   phone          String
-  address        String
+  address        String?          // optional now
+  gender         String           // "male" or "female"
   paymentSlipUrl String
   status         String   @default("pending") // pending | confirmed | rejected
+  attended       Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
