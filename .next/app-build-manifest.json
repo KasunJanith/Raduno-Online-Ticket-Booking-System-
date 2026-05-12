@@ -16,6 +16,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/book/page.js"
     ],
+    "/ticket/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/ticket/[id]/page.js"
+    ],
     "/admin/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -26,10 +31,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/layout.js"
     ],
-    "/ticket/[id]/page": [
+    "/admin/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/ticket/[id]/page.js"
+      "static/chunks/app/admin/login/page.js"
     ]
   }
 }

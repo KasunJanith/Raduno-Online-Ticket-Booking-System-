@@ -1,4 +1,4 @@
-// File: D:\My Github Projects\Raduno online ticket system\src\app\book\page.tsx
+// File: d:\My Github Projects\Raduno online ticket system\src\app\book\page.tsx
 import * as entry from '../../../../src/app/book/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
