@@ -3,6 +3,7 @@
 import { createBooking } from '@/lib/actions';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ProcessingModalProps {
   name: string;
@@ -11,34 +12,61 @@ interface ProcessingModalProps {
 }
 
 function ProcessingModal({ name, bookingId, onComplete }: ProcessingModalProps) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Redirect to success modal after processing
-      onComplete();
-    }, 3000);
+  const [progress, setProgress] = useState(0);
 
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    const steps = [
+      { delay: 500, value: 30 },
+      { delay: 1200, value: 65 },
+      { delay: 2000, value: 100 }
+    ];
+
+    const timers = steps.map(step =>
+      setTimeout(() => setProgress(step.value), step.delay)
+    );
+
+    const completeTimer = setTimeout(() => {
+      onComplete();
+    }, 2800);
+
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+      clearTimeout(completeTimer);
+    };
   }, [onComplete]);
+
+  const steps = [
+    { label: 'Verifying Payment', completed: progress >= 30 },
+    { label: 'Generating E-Ticket', completed: progress >= 65 },
+    { label: 'Finalizing Booking', completed: progress >= 100 }
+  ];
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-lg animate-fade-in">
       <div className="bg-gradient-to-br from-black via-black to-maroon-900/30 border-2 border-gold-400/50 rounded-3xl p-10 max-w-md w-full shadow-2xl shadow-gold-500/30 animate-bounce-in [animation-duration:0.8s]">
-        <div className="flex flex-col items-center space-y-6">
-          {/* Loading Spinner */}
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-gold-400/30 border-t-gold-400 animate-spin"></div>
+        <div className="flex flex-col items-center space-y-8">
+          {/* Animated Hourglass Icon */}
+          <div className="relative w-24 h-24">
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl">⏳</span>
+              <span className="text-6xl animate-bounce" style={{animationDuration: '1.5s'}}>⏳</span>
             </div>
+            <svg className="absolute inset-0 w-full h-full animate-spin" style={{animationDuration: '3s'}} viewBox="0 0 100 100" fill="none" stroke="url(#goldGradient)" strokeWidth="2">
+              <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#d4af37" stopOpacity="0.3"/>
+                  <stop offset="100%" stopColor="#f4d03f" stopOpacity="0.8"/>
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" opacity="0.3"/>
+            </svg>
           </div>
 
           {/* Message */}
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gold-300 to-gold-400 bg-clip-text text-transparent">
-              Processing Your Booking
+              Processing Booking
             </h2>
-            <p className="text-gray-400 text-lg">{name}</p>
-            <p className="text-gray-500 text-sm">Please wait while we confirm your payment...</p>
+            <p className="text-gray-400 text-lg font-semibold">{name}</p>
           </div>
 
           {/* Booking ID */}
@@ -47,12 +75,39 @@ function ProcessingModal({ name, bookingId, onComplete }: ProcessingModalProps) 
             <p className="font-mono text-gold-300 font-bold text-sm">{bookingId.slice(0, 8).toUpperCase()}</p>
           </div>
 
-          {/* Status Message */}
-          <div className="text-center space-y-1">
-            <p className="text-gray-400 text-sm">✦ Verifying payment</p>
-            <p className="text-gray-400 text-sm">✦ Generating e-ticket</p>
-            <p className="text-gray-400 text-sm">✦ Redirecting...</p>
+          {/* Progress Bar */}
+          <div className="w-full space-y-3">
+            <div className="relative h-2 bg-black/50 rounded-full border border-gold-500/30 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-gold-400 to-gold-500 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-center text-gold-300 text-sm font-semibold">{progress}%</p>
           </div>
+
+          {/* Processing Steps */}
+          <div className="w-full space-y-3">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${
+                  step.completed 
+                    ? 'bg-gradient-to-r from-gold-400 to-gold-500 text-black' 
+                    : 'bg-gray-700 text-gray-400'
+                }`}>
+                  {step.completed ? '✓' : index + 1}
+                </div>
+                <span className={`text-sm font-medium transition-colors duration-500 ${
+                  step.completed ? 'text-gold-300' : 'text-gray-500'
+                }`}>
+                  {step.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Subtle hint */}
+          <p className="text-xs text-gray-600 italic text-center">Redirecting to your e-ticket...</p>
         </div>
       </div>
     </div>
@@ -168,25 +223,58 @@ function SuccessModal({ bookingId, name, onClose }: SuccessModalProps) {
 }
 
 export default function BookPage() {
+  const router = useRouter();
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState<{ bookingId: string; name: string } | null>(null);
   const [errorModal, setErrorModal] = useState('');
-
   useEffect(() => {
-    // Handle file selection display
+    // Handle file selection display and validation
     const fileInput = document.getElementById('slip-upload') as HTMLInputElement;
     const fileNameElement = document.getElementById('file-name');
     const fileDisplayElement = document.getElementById('file-display');
+    const fileErrorElement = document.getElementById('file-error');
+    const fileErrorMsg = document.getElementById('file-error-msg');
 
     if (fileInput) {
       fileInput.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
-        if (file && fileNameElement && fileDisplayElement) {
-          fileDisplayElement.textContent = file.name;
-          fileNameElement.classList.remove('hidden');
-        }      });
+        
+        // Clear previous errors
+        if (fileErrorElement) fileErrorElement.classList.add('hidden');
+        if (fileNameElement) fileNameElement.classList.add('hidden');
+
+        if (file) {
+          // Validate file type
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+          if (!allowedTypes.includes(file.type)) {
+            if (fileErrorElement && fileErrorMsg) {
+              fileErrorMsg.textContent = 'Only image files are allowed (JPG, PNG, GIF, WebP)';
+              fileErrorElement.classList.remove('hidden');
+            }
+            fileInput.value = ''; // Clear the input
+            return;
+          }
+
+          // Validate file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            if (fileErrorElement && fileErrorMsg) {
+              fileErrorMsg.textContent = 'File size must be less than 5MB';
+              fileErrorElement.classList.remove('hidden');
+            }
+            fileInput.value = ''; // Clear the input
+            return;
+          }
+
+          // Show success
+          if (fileNameElement && fileDisplayElement) {
+            fileDisplayElement.textContent = file.name;
+            fileNameElement.classList.remove('hidden');
+          }
+        }
+      });
     }
-  }, []);  async function handleSubmit(formData: FormData) {
+  }, []);
+  async function handleSubmit(formData: FormData) {
     setUploading(true);
     setErrorModal('');
     try {
@@ -197,18 +285,20 @@ export default function BookPage() {
       // Show processing modal first
       setProcessing({ bookingId, name });
       
-      // After 3 seconds, redirect to ticket
+      // After processing completes (2.8s), redirect smoothly to ticket
       setTimeout(() => {
-        window.location.href = `/ticket/${bookingId}`;
-      }, 3000);
+        router.push(`/ticket/${bookingId}`);
+      }, 2800);
     } catch (e: any) {
       const errorMessage = e.message || 'Something went wrong. Please try again.';
       setErrorModal(errorMessage);
       setUploading(false);
     }
   }
+
   const handleProcessingComplete = () => {
-    // Redirect happens in handleSubmit via setTimeout
+    // Processing modal automatically closes after animation
+    // Router.push happens in handleSubmit
   };
 
   return (
@@ -239,23 +329,27 @@ export default function BookPage() {
             <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Bank Name</p>
-                <p className="text-white font-semibold text-lg">Commercial Bank of Ceylon</p>
+                <p className="text-white font-semibold text-lg">People's Bank</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Account Holder</p>
-                <p className="text-white font-semibold text-lg">Raduno '26 Committee</p>
+                <p className="text-white font-semibold text-lg">K. J. B. Thilakarathna</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Account Number</p>
-                <p className="text-gold-400 font-mono font-bold text-lg">1234567890</p>
+                <p className="text-gold-400 font-mono font-bold text-lg">034200120714156</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Branch</p>
-                <p className="text-white font-semibold text-lg">Negombo Main Branch</p>
+                <p className="text-white font-semibold text-lg">Negombo Branch</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Amount</p>
+                <p className="text-white font-semibold text-lg">LKR 5,000.00</p>
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-4 pt-4 border-t border-gold-400/20">
-              💡 Tip: Include your name in the payment reference for faster confirmation
+              Tip: Include your name in the payment reference for faster confirmation
             </p>
           </div>
 
@@ -321,13 +415,16 @@ export default function BookPage() {
             />
           </div>          {/* Payment Slip Upload */}
           <div className="space-y-3 pt-4 md:pt-6">
-            <label className="block text-sm font-semibold text-gold-400 uppercase tracking-wider">Payment Slip *</label>
-            <div className="relative">
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-semibold text-gold-400 uppercase tracking-wider">Payment Screenshot</label>
+              <span className="text-red-500 font-bold text-lg">*</span>
+            </div>
+            <div className="relative border-2 border-gold-400/50 rounded-lg p-4 hover:border-gold-400 transition-colors duration-300">
               <input
                 type="file"
                 id="slip-upload"
                 name="slip"
-                accept=".pdf,image/*"
+                accept="image/*"
                 required
                 className="hidden"
               />
@@ -335,11 +432,12 @@ export default function BookPage() {
                 htmlFor="slip-upload"
                 className="block bg-gradient-to-r from-gold-600 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-black font-bold py-4 px-6 rounded-lg cursor-pointer transition-all duration-300 text-center text-base md:text-lg shadow-lg hover:shadow-xl"
               >
-                📤 Choose Payment Slip (PDF or Image)
+                📸 Upload Payment Screenshot Here
               </label>
-              <p id="file-name" className="text-gold-300 text-sm mt-2 text-center font-semibold hidden">File selected: <span id="file-display"></span></p>
+              <p id="file-name" className="text-gold-300 text-sm mt-3 text-center font-semibold hidden">✓ File selected: <span id="file-display"></span></p>
+              <p id="file-error" className="text-red-400 text-sm mt-3 text-center font-semibold hidden">⚠️ <span id="file-error-msg"></span></p>
             </div>
-            <p className="text-xs text-gray-400 italic">📄 Upload your payment confirmation (PDF or image)</p>
+            <p className="text-xs text-gray-400 italic">Upload a screenshot of your payment slip (JPG, PNG or GIF)</p>
           </div>
 
           {/* Submit Button */}
@@ -354,7 +452,7 @@ export default function BookPage() {
                 Uploading & Reserving...
               </>
             ) : (
-              "✨ Confirm Booking"
+              "Confirm Booking"
             )}
           </button>
         </form>
@@ -362,8 +460,8 @@ export default function BookPage() {
         {/* Security Note */}
         <div className="mt-10 text-center space-y-2 text-gray-400 text-sm">
           <p>🔒 All information is secure and confidential</p>
-          <p>✉️ You&apos;ll receive your e-ticket via email shortly</p>
-          <p className="text-xs text-gray-500 mt-4">Have questions? Contact the organizing committee on the home page.</p>
+          <p>✉️ You&apos;ll receive your e-ticket shortly download it and keep it with you</p>
+          
         </div>      </div>      {errorModal && (
         <ErrorModal
           message={errorModal}

@@ -36,7 +36,19 @@ export async function createBooking(formData: FormData) {
   const slipFile = formData.get('slip') as File;
 
   if (!name || !phone || !gender || !slipFile) {
-    throw new Error('Please fill all required fields (name, phone, gender, payment slip).');
+    throw new Error('Please fill all required fields (name, phone, gender, payment screenshot).');
+  }
+
+  // Validate file type - only images allowed
+  const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (!allowedImageTypes.includes(slipFile.type)) {
+    throw new Error('Payment screenshot must be an image file (JPG, PNG, GIF or WebP). PDF files are not accepted.');
+  }
+
+  // Validate file size (max 5MB)
+  const maxFileSize = 5 * 1024 * 1024; // 5MB
+  if (slipFile.size > maxFileSize) {
+    throw new Error('File size must be less than 5MB.');
   }
 
   // Check if phone number already exists
@@ -103,5 +115,14 @@ export async function markAttendance(bookingId: string) {
     data: { attended: true },
   });
   revalidatePath(`/verify/${bookingId}`);
+  revalidatePath('/admin/dashboard');
+}
+
+// Delete booking
+export async function deleteBooking(bookingId: string) {
+  if (!isAdmin()) throw new Error('Unauthorized');
+  await prisma.booking.delete({
+    where: { id: bookingId },
+  });
   revalidatePath('/admin/dashboard');
 }

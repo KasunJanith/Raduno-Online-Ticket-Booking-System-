@@ -4,10 +4,15 @@ import { redirect } from 'next/navigation';
 import AdminDashboardClient from './AdminDashboardClient';
 
 export default async function AdminDashboardPage() {
-  // Auth check
+  // Auth check - protect dashboard
   const cookieStore = cookies();
   const token = cookieStore.get('admin_token')?.value;
-  if (token !== process.env.ADMIN_SECRET) redirect('/admin/login');
+  const adminSecret = process.env.ADMIN_SECRET;
+  
+  // Redirect to login if no token or token doesn't match
+  if (!token || !adminSecret || token !== adminSecret) {
+    redirect('/admin/login');
+  }
 
   const bookings = await prisma.booking.findMany({
     orderBy: { createdAt: 'desc' },

@@ -54,7 +54,7 @@ export default function Home() {
             href="/book"
             className="btn-primary inline-block text-lg px-10 py-4 font-bold shadow-lg shadow-gold-500/40 hover:shadow-gold-500/60 transform hover:scale-105 duration-300"
           >
-            ✨ Book Your Ticket Now
+             Book Your Ticket Now
           </Link>
         </div>        {/* Organizing Committee Section */}
         
@@ -86,7 +86,7 @@ export default function Home() {
         {/* Event Details Footer */}
         <div className="text-gray-400 text-sm space-y-2 max-w-md animate-slide-up" style={{ animationDelay: "0.5s" }}>
           <h3>📅 <span className="text-gold-400">23 May 2026</span></h3>
-          <h3>📍 <span className="text-gold-400">Hotel Akashyaam, Negombo</span></h3>
+          <h3>📍 <span className="text-gold-400">Hotel Grand Maas & Banquets (Akshayaam), Negombo - Rooftop</span></h3>
           <h3>⏰ <span className="text-gold-400">4:00 PM Onwards</span></h3>
         </div>
       </div>

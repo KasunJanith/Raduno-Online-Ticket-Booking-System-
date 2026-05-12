@@ -1,6 +1,6 @@
 'use client';
 
-import { updateBookingStatus, markAttendance } from '@/lib/actions';
+import { updateBookingStatus, markAttendance, deleteBooking } from '@/lib/actions';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -17,13 +17,23 @@ interface Booking {
 export default function AdminDashboardClient({ bookings }: { bookings: Booking[] }) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-
   async function handleStatusUpdate(bookingId: string, status: 'confirmed' | 'rejected') {
     await updateBookingStatus(bookingId, status);
   }
 
   async function handleMarkAttendance(bookingId: string) {
     await markAttendance(bookingId);
+  }
+
+  async function handleDeleteBooking(bookingId: string) {
+    if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+      try {
+        await deleteBooking(bookingId);
+        alert('Booking deleted successfully');
+      } catch (error) {
+        alert('Error deleting booking: ' + (error instanceof Error ? error.message : String(error)));
+      }
+    }
   }
 
   const stats = {
@@ -130,13 +140,18 @@ export default function AdminDashboardClient({ bookings }: { bookings: Booking[]
             <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4 backdrop-blur-lg animate-fade-in" onClick={() => setSelectedImage(null)}>
               <div className="relative max-w-4xl w-full max-h-[90vh] rounded-2xl border-2 border-gold-400/50 shadow-2xl shadow-gold-500/30 overflow-hidden bg-black">
                 {selectedImage.toLowerCase().endsWith('.pdf') ? (
-                  <iframe
-                    src={`${selectedImage}#toolbar=1&navpanes=0&scrollbar=1`}
-                    className="w-full h-full min-h-[600px]"
-                    title="Payment slip PDF"
-                  />
+                  <div className="w-full h-full min-h-[600px] flex flex-col">
+                    <iframe
+                      src={selectedImage}
+                      className="w-full h-full flex-1"
+                      title="Payment slip PDF"
+                      onError={() => {
+                        alert('Could not load PDF. You can download it directly from the link.');
+                      }}
+                    />
+                  </div>
                 ) : (
-                  <img src={selectedImage} alt="Payment slip" className="w-full h-auto" />
+                  <img src={selectedImage} alt="Payment slip" className="w-full h-auto max-h-[90vh] object-contain" />
                 )}
                 <button
                   onClick={() => setSelectedImage(null)}
@@ -237,8 +252,7 @@ export default function AdminDashboardClient({ bookings }: { bookings: Booking[]
                           )}
                         </td>
                         <td className="px-6 py-5 whitespace-nowrap">
-                          <div className="flex gap-2 justify-center">
-                            {booking.status !== 'confirmed' && (
+                          <div className="flex gap-2 justify-center">                            {booking.status !== 'confirmed' && (
                               <button
                                 onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
                                 className="bg-green-600/80 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-bold transition-all duration-200 hover:shadow-lg hover:shadow-green-500/30"
@@ -260,11 +274,18 @@ export default function AdminDashboardClient({ bookings }: { bookings: Booking[]
                               href={`/ticket/${booking.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="btn-primary px-3 py-1 rounded text-xs font-bold inline-flex items-center justify-center hover:shadow-lg hover:shadow-gold-500/30"
+                              className="bg-blue-600/80 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold inline-flex items-center justify-center transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30"
                               title="View e-ticket"
                             >
                               🎫
                             </a>
+                            <button
+                              onClick={() => handleDeleteBooking(booking.id)}
+                              className="bg-red-700/80 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition-all duration-200 hover:shadow-lg hover:shadow-red-500/30"
+                              title="Delete booking"
+                            >
+                              🗑️
+                            </button>
                           </div>
                         </td>
                       </tr>

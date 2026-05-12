@@ -1,7 +1,8 @@
 'use client';
 
 import { QRCodeSVG } from 'qrcode.react';
-import { useRef } from 'react';
+import QRCode from 'qrcode';
+import { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Link from 'next/link';
@@ -17,66 +18,152 @@ interface Booking {
 
 export default function TicketClient({ booking }: { booking: Booking }) {
   const ticketRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
   const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/verify/${booking.id}`;  const downloadPDF = async () => {
-    if (!ticketRef.current) return;
-    try {
-      const element = ticketRef.current;
-      
-      // Generate canvas with optimized settings
-      const canvas = await html2canvas(element, { 
-        scale: 2, 
-        backgroundColor: '#000000',
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        imageTimeout: 30000,
-        ignoreElements: (el) => {
-          return el.id === 'download-btn';
-        }
+  setDownloading(true);
+
+  try {
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPosition = 20;
+
+    // Header
+    pdf.setTextColor(212, 175, 55); // Gold
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(28);
+    pdf.text("Raduno '26", pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 15;
+    pdf.setFontSize(12);
+    pdf.setTextColor(150, 150, 150);
+    pdf.setFont('helvetica', 'italic');
+    pdf.text('Official E-Ticket', pageWidth / 2, yPosition, { align: 'center' });
+
+    // Divider
+    yPosition += 12;
+    pdf.setDrawColor(212, 175, 55);
+    pdf.line(20, yPosition, pageWidth - 20, yPosition);
+
+    // Attendee name
+    yPosition += 15;
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.text('Attendee Name', 20, yPosition);
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(18);
+    pdf.setTextColor(212, 175, 55);
+    yPosition += 12;
+    pdf.text(booking.name, 20, yPosition);
+
+    // Details
+    yPosition += 18;
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+
+    const details = [
+      `Booking ID: ${booking.id.slice(0, 16).toUpperCase()}`,
+      `Phone: ${booking.phone}`,
+      `Gender: ${booking.gender.charAt(0).toUpperCase() + booking.gender.slice(1)}`,
+      `Status: ${booking.status === 'confirmed' ? 'Confirmed' : booking.status === 'pending' ? 'Pending' : 'Rejected'}`,
+    ];
+
+    details.forEach((detail) => {
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(10);
+      pdf.text(detail, 20, yPosition);
+      yPosition += 8;
+    });
+
+    // Event details
+    yPosition += 10;
+    pdf.setDrawColor(212, 175, 55);
+    pdf.line(20, yPosition, pageWidth - 20, yPosition);
+    yPosition += 12;
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(212, 175, 55);
+    pdf.text('Event Details', 20, yPosition);
+
+    yPosition += 10;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFontSize(10);
+    const eventDetails = [
+      'Date: 23 May 2026',
+      'Time: 4:00 PM Onwards',
+      'Venue: Hotel Grand Maas & Banquets (Akshayaam), Negombo - Rooftop',
+    ];
+
+    eventDetails.forEach((detail) => {
+      pdf.text(detail, 20, yPosition);
+      yPosition += 7;
+    });    // QR Code – generated from the SVG on the page    yPosition += 15;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(212, 175, 55);
+    pdf.text('Scan for Verification', pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 10;    try {
+      // Generate QR code using qrcode library
+      const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+        errorCorrectionLevel: 'H',
+        type: 'image/png',
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
       });
 
-      // Create PDF from canvas
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      let finalHeight = pdfHeight;
-      if (finalHeight > pageHeight) {
-        finalHeight = pageHeight - 10;
-      }
-      
-      pdf.addImage(imgData, 'PNG', 5, 5, pdfWidth - 10, finalHeight - 10);
-      
-      // Generate PDF blob and trigger download
-      const pdfBlob = pdf.output('blob');
-      const downloadUrl = URL.createObjectURL(pdfBlob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = downloadUrl;
-      downloadLink.download = `Raduno26_Ticket_${booking.id.slice(0, 8).toUpperCase()}.pdf`;
-      
-      // Trigger download
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      
-      // Cleanup
-      setTimeout(() => {
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(downloadUrl);
-      }, 100);
-      
+      // Add QR code to PDF
+      const qrSize = 50; // mm
+      const qrX = (pageWidth - qrSize) / 2;
+      pdf.addImage(qrDataUrl, 'PNG', qrX, yPosition, qrSize, qrSize);
+      yPosition += qrSize + 5;
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Could not download PDF. Please try one of these alternatives:\n\n1. Use Ctrl+P (Cmd+P on Mac) to print to PDF\n2. Right-click and select "Save as PDF"\n3. Take a screenshot and save as image');
+      console.warn('Could not generate QR code:', error);
+      // Fallback: write the verification URL as text
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(verificationUrl, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
     }
-  };
+
+    // Footer
+    yPosition = Math.max(yPosition + 10, pageHeight - 25);
+    pdf.setDrawColor(212, 175, 55);
+    pdf.line(20, yPosition, pageWidth - 20, yPosition);
+
+    yPosition += 8;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text("This is an official Raduno '26 E-Ticket", pageWidth / 2, yPosition, { align: 'center' });
+
+    yPosition += 6;
+    pdf.text('Please present this at the venue entrance for entry', pageWidth / 2, yPosition, { align: 'center' });
+
+    // Save PDF
+    const fileName = `Raduno26_Ticket_${booking.id.slice(0, 8).toUpperCase()}.pdf`;
+    pdf.save(fileName);
+    setDownloading(false);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    setDownloading(false);
+    alert('Error: ' + (error instanceof Error ? error.message : String(error)));
+  }
+};
 
   const statusConfig = {
     pending: { 
@@ -120,9 +207,17 @@ export default function TicketClient({ booking }: { booking: Booking }) {
           </Link>          <button
             id="download-btn"
             onClick={downloadPDF}
-            className="btn-primary py-2 px-6 text-sm font-bold flex items-center gap-2 hover:shadow-gold-500/60"
+            disabled={downloading}
+            className="btn-primary py-2 px-6 text-sm font-bold flex items-center gap-2 hover:shadow-gold-500/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
           >
-            📥 Download PDF
+            {downloading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black border-t-white rounded-full animate-spin"></div>
+                Generating PDF...
+              </>
+            ) : (
+              <>📥 Download PDF</>
+            )}
           </button>
         </div>
 
@@ -157,7 +252,7 @@ export default function TicketClient({ booking }: { booking: Booking }) {
             </div>
 
             {/* Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ticket ID</p>
                 <p className="text-xs font-mono text-gold-300 font-bold break-all">{booking.id.slice(0, 16)}</p>
@@ -170,19 +265,10 @@ export default function TicketClient({ booking }: { booking: Booking }) {
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Gender</p>
                 <p className="text-sm text-gray-300 font-medium capitalize">{booking.gender}</p>
               </div>
-              <div className="text-center">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Entry Status</p>
-                <p className={`text-sm font-bold ${currentStatus.textColor}`}>{booking.attended ? '✔ Attended' : (booking.status === 'confirmed' ? '✅ Allowed' : booking.status === 'rejected' ? '❌ Denied' : '⏳ Pending')}</p>
-              </div>
+              
             </div>
           </div>          {/* Decorative Divider */}
-          <div className="px-8 py-4">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold-400/50 to-transparent"></div>
-              <span className="text-gold-300 text-sm">✦</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gold-400/50 to-transparent"></div>
-            </div>
-          </div>
+        
 
           {/* QR Code Display */}
           <div className="flex flex-col items-center px-8 py-8 space-y-4">
@@ -190,21 +276,22 @@ export default function TicketClient({ booking }: { booking: Booking }) {
             <div className="bg-white p-5 rounded-2xl shadow-xl border-4 border-gold-400/30 hover:border-gold-400/50 transition-colors">
               <QRCodeSVG value={verificationUrl} size={180} level="H" includeMargin={true} />
             </div>
-            <p className="text-xs text-gray-500 italic text-center">Show this QR code at the entrance for verification</p>
-          </div>{/* Event Details Card */}
+            <p className="text-xs text-gray-500 italic text-center">Show this QR code at the entrance for verification</p>          </div>{/* Event Details Card */}
           <div className="px-8 py-6 space-y-3 bg-black/30 border-t border-b border-gold-400/20">
             <h3 className="text-sm font-bold text-gold-400 uppercase tracking-wider mb-4">Event Details</h3>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">📅 Date</span>
-              <span className="text-white font-semibold">23 May 2026</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">⏰ Time</span>
-              <span className="text-white font-semibold">4:00 PM Onwards</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">📍 Venue</span>
-              <span className="text-white font-semibold text-right">Hotel Akashyaam, Negombo (Rooftop)</span>
+            <div className="flex flex-col items-start gap-2 text-sm">
+              <div>
+                <span className="text-gray-400 font-bold">Date</span>
+                <p className="text-white font-semibold">23 May 2026</p>
+              </div>
+              <div>
+                <span className="text-gray-400 font-bold">Time</span>
+                <p className="text-white font-semibold">4:00 PM Onwards</p>
+              </div>
+              <div>
+                <span className="text-gray-400 font-bold">Venue</span>
+                <p className="text-white font-semibold">Hotel Grand Maas & Banquets (Akshayaam), Negombo - Rooftop</p>
+              </div>
             </div>
           </div>
 
@@ -257,10 +344,7 @@ export default function TicketClient({ booking }: { booking: Booking }) {
         </div>
 
         {/* Support Information */}
-        <div className="text-center text-gray-500 text-xs mt-10 space-y-2">
-          <p>For inquiries or support: <span className="text-gold-400 font-semibold">contact@raduno26.com</span></p>
-          <p>WhatsApp: <span className="text-gold-400 font-semibold">+94 77 123 4567</span></p>
-        </div>
+      
       </div>
     </div>
   );
