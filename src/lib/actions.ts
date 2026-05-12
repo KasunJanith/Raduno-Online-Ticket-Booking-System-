@@ -39,6 +39,15 @@ export async function createBooking(formData: FormData) {
     throw new Error('Please fill all required fields (name, phone, gender, payment slip).');
   }
 
+  // Check if phone number already exists
+  const existingBooking = await prisma.booking.findFirst({
+    where: { phone }
+  });
+
+  if (existingBooking) {
+    throw new Error(`Phone number ${phone} is already registered. Please use a different phone number.`);
+  }
+
   const paymentSlipUrl = await uploadToCloudinary(slipFile);
 
   const booking = await prisma.booking.create({
@@ -51,7 +60,7 @@ export async function createBooking(formData: FormData) {
     },
   });
 
-  redirect(`/ticket/${booking.id}`);
+  return booking;
 }
 
 export async function updateBookingStatus(bookingId: string, status: 'confirmed' | 'rejected') {

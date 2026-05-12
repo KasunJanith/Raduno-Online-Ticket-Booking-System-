@@ -10,7 +10,7 @@ datasource db {
 model Booking {
   id             String   @id @default(cuid())
   name           String
-  phone          String
+  phone          String   @unique
   address        String?          // optional now
   gender         String           // "male" or "female"
   paymentSlipUrl String

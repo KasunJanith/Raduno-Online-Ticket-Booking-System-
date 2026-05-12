@@ -1,0 +1,38 @@
+
+> raduno26@1.0.0 build
+> next build --no-lint
+
+ ⚠ Linting is disabled.
+  ▲ Next.js 14.2.3
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    172 B          94.1 kB
+├ ○ /_not-found                          871 B            88 kB
+├ ƒ /admin/dashboard                     2.23 kB        96.2 kB
+├ ○ /admin/login                         989 B          88.1 kB
+├ ○ /admin/scan                          109 kB          196 kB
+├ ○ /book                                2.52 kB        96.5 kB
+├ ƒ /ticket/[id]                         185 kB          278 kB
+└ ƒ /verify/[id]                         1.37 kB        88.5 kB
++ First Load JS shared by all            87.2 kB
+  ├ chunks/23-3433878a6013d2af.js        31.5 kB
+  ├ chunks/fd9d1056-4e1a26e2d413ba3c.js  53.6 kB
+  └ other shared chunks (total)          2.06 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
