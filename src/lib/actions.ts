@@ -16,9 +16,9 @@ function isAdmin() {
 async function uploadToCloudinary(file: File): Promise<string> {
   try {
     // Validate Cloudinary config
-    if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      throw new Error('Cloudinary is not properly configured. Please contact support.');
-    }
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  throw new Error('Cloudinary is not properly configured. Please contact support.');
+}
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
