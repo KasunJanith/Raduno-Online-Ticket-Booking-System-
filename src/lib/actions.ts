@@ -15,32 +15,26 @@ function isAdmin() {
 
 async function uploadToCloudinary(file: File): Promise<string> {
   try {
-    // Validate Cloudinary config
+    // Validate config
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  throw new Error('Cloudinary is not properly configured. Please contact support.');
-}
+      throw new Error('Cloudinary is not properly configured.');
+    }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: 'raduno26_slips', resource_type: 'auto' },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error);
-            reject(new Error(`File upload failed: ${error.message}`));
-          } else if (result?.secure_url) {
-            resolve(result.secure_url);
-          } else {
-            reject(new Error('No URL returned from Cloudinary'));
-          }
-        }
-      );
-      uploadStream.end(buffer);
+    const base64String = buffer.toString('base64');
+    const dataUri = `data:${file.type};base64,${base64String}`;
+
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: 'raduno26_slips',
+      resource_type: 'image',   // we only accept images now
+      overwrite: false,
     });
-  } catch (error) {
-    console.error('Cloudinary setup error:', error);
-    throw new Error(`Cloudinary configuration error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+
+    return result.secure_url;
+  } catch (error: any) {
+    console.error('Cloudinary upload error:', error);
+    throw new Error(`File upload failed: ${error.message || 'Unknown Cloudinary error'}`);
   }
 }
 
