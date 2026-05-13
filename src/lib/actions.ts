@@ -89,7 +89,7 @@ export async function createBooking(formData: FormData) {
       },
     });
 
-    return booking;
+    redirect(`/ticket/${booking.id}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create booking';
     console.error('Booking creation error:', message);
