@@ -273,22 +273,13 @@ export default function BookPage() {
         }
       });
     }
-  }, []);
-  async function handleSubmit(formData: FormData) {
+  }, []);  async function handleSubmit(formData: FormData) {
     setUploading(true);
     setErrorModal('');
     try {
       const name = formData.get('name') as string;
-      const result = await createBooking(formData);
-      const bookingId = result?.id || 'unknown';
-      
-      // Show processing modal first
-      setProcessing({ bookingId, name });
-      
-      // After processing completes (2.8s), redirect smoothly to ticket
-      setTimeout(() => {
-        router.push(`/ticket/${bookingId}`);
-      }, 2800);
+      // createBooking now calls redirect() internally, so it won't return
+      await createBooking(formData);
     } catch (e: any) {
       const errorMessage = e.message || 'Something went wrong. Please try again.';
       setErrorModal(errorMessage);
